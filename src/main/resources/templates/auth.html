@@ -1,0 +1,46 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap Login Form Template</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{http://fonts.googleapis.com/css?family=Roboto:400,100,300,500}">
+    <link rel="stylesheet" th:href="@{public/bower_components/bootstrap/dist/css/bootstrap.css}">
+    <link rel="stylesheet" th:href="@{public/bower_components/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{public/css/form-elements.css}">
+    <link rel="stylesheet" th:href="@{public/css/style.css}">
+
+
+    <script th:src="@{public/bower_components/jquery/dist/jquery.js}"></script>
+    <script th:src="@{public/bower_components/jquery-backstretch/jquery.backstretch.js}"></script>
+    <script th:src="@{public/bower_components/bootstrap/dist/js/bootstrap.js}"></script>
+</head>
+<body>
+
+<!-- Top content -->
+<div class="top-content">
+
+    <div class="inner-bg">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-2 text">
+                    <h1><strong>Bitnami</strong>Wordpress</h1>
+                    <div class="description">
+                        <p>
+                            Tool for creating a Bitnami worpress AMI
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div th:switch="${formToDisplay}">
+                <div class="row" th:case="login" id="loginForm" th:insert="form/loginForm"></div>
+                <div class="row" th:case="register" id="registerForm" th:insert="form/registerForm"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{public/js/scripts.js}"></script>
+</body>
+</html>
