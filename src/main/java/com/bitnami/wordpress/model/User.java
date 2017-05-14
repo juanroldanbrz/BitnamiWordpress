@@ -26,6 +26,11 @@ public class User {
     @NotEmpty
     private String AWSSecretKey;
 
+    @ManyToOne(cascade=CascadeType.ALL)
+    private Configuration configuration;
+
+    private String instanceId;
+
     public User(){}
 
     public User(String username, String password){
@@ -38,6 +43,14 @@ public class User {
         this.password = password;
         this.AWSAccessKeyId = AWSAccessKeyId;
         this.AWSSecretKey = AWSSecretKey;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     public Long getId() {
@@ -74,5 +87,13 @@ public class User {
 
     public void setAWSSecretKey(String AWSSecretKey) {
         this.AWSSecretKey = AWSSecretKey;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
     }
 }

@@ -25,6 +25,9 @@ public class UserService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private ConfigurationService configurationService;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findOneByUsername(username);
@@ -38,6 +41,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public User save(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setConfiguration(configurationService.getConfiguration());
         userRepository.save(user);
         return user;
     }
