@@ -2,8 +2,7 @@ package com.bitnami.wordpress.service;
 
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
-import com.amazonaws.services.ec2.model.RunInstancesRequest;
-import com.amazonaws.services.ec2.model.RunInstancesResult;
+import com.amazonaws.services.ec2.model.*;
 import com.bitnami.wordpress.model.entity.Configuration;
 import com.bitnami.wordpress.model.entity.Instance;
 import com.bitnami.wordpress.model.entity.User;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Optional;
 
 @Service
 public class AWSService {
@@ -21,7 +21,7 @@ public class AWSService {
     private IConfigurationService configurationService;
 
     @Autowired
-    private InstanceRepository instanceRepository;
+    private InstanceService instanceRepository;
 
     @Autowired
     private UserService userService;
@@ -36,20 +36,109 @@ public class AWSService {
                 .withRegion(configuration.getRegion())
                 .build();
 
-        RunInstancesRequest run_request = new RunInstancesRequest()
+        RunInstancesRequest runInstancesRequest = new RunInstancesRequest()
                 .withImageId(configuration.getAmiIdentifier())
                 .withInstanceType(configuration.getInstanceType())
                 .withMaxCount(1)
                 .withMinCount(1);
 
-        RunInstancesResult run_response = ec2.runInstances(run_request);
-        String instanceIdentifier = run_response.getReservation().getReservationId();
+        RunInstancesResult responseResult = ec2.runInstances(runInstancesRequest);
+        String reservationId = responseResult.getReservation().getReservationId();
 
-        Instance instance = new Instance(instanceIdentifier, instanceName,
-                Instance.STATUS.NEW_INSTANCE, "",configuration);
+        com.amazonaws.services.ec2.model.Instance createdInstance =
+                responseResult.getReservation().getInstances()
+                        .stream()
+                        .findFirst()
+                        .orElse(null);
+
+        String instanceIdentifier = createdInstance.getInstanceId();
+
+        Instance instance = new Instance(reservationId, instanceIdentifier, instanceName,
+                createdInstance.getState().getName(), createdInstance.getPublicDnsName(),configuration);
 
         instanceRepository.save(instance);
         user.setInstance(instance);
         userService.save(user);
+    }
+
+    public void stopInstance(User user){
+        AmazonEC2 ec2 = AmazonEC2ClientBuilder.standard()
+                .withCredentials(new CustomCredentialProvider(user))
+                .withRegion(user.getInstance().getConfiguration().getRegion())
+                .build();
+
+        StopInstancesRequest stopInstancesRequest = new StopInstancesRequest()
+                .withInstanceIds(user.getInstance().getInstanceIdentifier());
+
+        ec2.stopInstances(stopInstancesRequest);
+    }
+
+    public void startInstance(User user){
+        AmazonEC2 ec2 = AmazonEC2ClientBuilder.standard()
+                .withCredentials(new CustomCredentialProvider(user))
+                .withRegion(user.getInstance().getConfiguration().getRegion())
+                .build();
+
+        StartInstancesRequest startInstancesRequest = new StartInstancesRequest()
+                .withInstanceIds(user.getInstance().getInstanceIdentifier());
+
+        ec2.startInstances(startInstancesRequest);
+    }
+
+    @Transactional
+    public void terminateInstance(User user){
+        AmazonEC2 ec2 = AmazonEC2ClientBuilder.standard()
+                .withCredentials(new CustomCredentialProvider(user))
+                .withRegion(user.getInstance().getConfiguration().getRegion())
+                .build();
+
+        TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest()
+                .withInstanceIds(user.getInstance().getInstanceIdentifier());
+
+        ec2.terminateInstances(terminateInstancesRequest);
+
+        Instance instance = user.getInstance();
+        user.setInstance(null);
+        instanceRepository.delete(instance.getId());
+        userService.save(user);
+    }
+
+    @Transactional
+    public void restartInstance(User user){
+        AmazonEC2 ec2 = AmazonEC2ClientBuilder.standard()
+                .withCredentials(new CustomCredentialProvider(user))
+                .withRegion(user.getInstance().getConfiguration().getRegion())
+                .build();
+
+        RebootInstancesRequest  rebootInstancesRequest = new RebootInstancesRequest ()
+                .withInstanceIds(user.getInstance().getInstanceIdentifier());
+
+        ec2.rebootInstances(rebootInstancesRequest);
+    }
+
+    @Transactional
+    public InstanceState getInstanceStatus(User user){
+        AmazonEC2 ec2 = AmazonEC2ClientBuilder.standard()
+                .withCredentials(new CustomCredentialProvider(user))
+                .withRegion(user.getInstance().getConfiguration().getRegion())
+                .build();
+
+        DescribeInstancesRequest request = new DescribeInstancesRequest()
+                .withInstanceIds(user.getInstance().getInstanceIdentifier());
+
+        DescribeInstancesResult response = ec2.describeInstances(request);
+
+        Reservation currentReservation = response.getReservations()
+                .stream()
+                .filter((reservation -> reservation.getReservationId().equals(user.getInstance().getReservationId())))
+                .findFirst().orElse(null);
+
+        com.amazonaws.services.ec2.model.Instance currentInstance = currentReservation.getInstances()
+                .stream()
+                .filter( (instance) -> instance.getImageId().equals(user.getInstance().getInstanceIdentifier()) )
+                .findFirst()
+                .orElse(null);
+
+        return currentInstance.getState();
     }
 }

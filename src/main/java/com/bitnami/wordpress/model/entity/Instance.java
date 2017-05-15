@@ -4,20 +4,16 @@ import javax.persistence.*;
 
 @Entity
 public class Instance {
-    public enum STATUS {
-        OFF,
-        ON,
-        NEW_INSTANCE
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "instance_id")
     private Long id;
 
+    private String reservationId;
     private String instance_identifier;
     private String name;
-    private STATUS status;
+    private String status;
     private String url;
 
     @ManyToOne(cascade=CascadeType.ALL)
@@ -25,8 +21,9 @@ public class Instance {
 
     public Instance(){}
 
-    public Instance(String instance_identifier, String name, STATUS status,
+    public Instance(String reservationId, String instance_identifier, String name, String status,
                     String url, Configuration configuration) {
+        this.reservationId = reservationId;
         this.instance_identifier = instance_identifier;
         this.name = name;
         this.status = status;
@@ -58,11 +55,11 @@ public class Instance {
         this.name = name;
     }
 
-    public STATUS getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(STATUS status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
@@ -80,5 +77,21 @@ public class Instance {
 
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
+    }
+
+    public String getReservationId() {
+        return reservationId;
+    }
+
+    public void setReservationId(String reservationId) {
+        this.reservationId = reservationId;
+    }
+
+    public String getInstance_identifier() {
+        return instance_identifier;
+    }
+
+    public void setInstance_identifier(String instance_identifier) {
+        this.instance_identifier = instance_identifier;
     }
 }
