@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories
 public class WordpressApplication {
 
+	//@TODO Add proper logging
 	public static void main(String[] args) {
 		SpringApplication.run(WordpressApplication.class, args);
 	}

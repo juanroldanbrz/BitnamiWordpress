@@ -30,6 +30,7 @@ public class AWSService {
     public void launchImage(User user, String instanceName, long configurationId ){
         Configuration configuration = configurationService.getConfigurationById(configurationId);
 
+        //@TODO Move this to an autowired variable
         AmazonEC2 ec2 = AmazonEC2ClientBuilder.standard()
                 .withCredentials(new CustomCredentialProvider(user))
                 .withRegion(configuration.getRegion())

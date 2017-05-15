@@ -20,9 +20,11 @@ public class User {
     private String password;
 
     @NotEmpty
+    //@TODO Encrypt this
     private String AWSAccessKeyId;
 
     @NotEmpty
+    //@TODO Encrypt this
     private String AWSSecretKey;
 
     @OneToOne

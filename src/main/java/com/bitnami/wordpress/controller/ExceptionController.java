@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+//@TODO Use this to properly display error in the angular app.
 @ControllerAdvice
 public class ExceptionController {
 
@@ -22,5 +23,4 @@ public class ExceptionController {
         model.addAttribute("hasError", true);
         return "home/home";
     }
-
 }
