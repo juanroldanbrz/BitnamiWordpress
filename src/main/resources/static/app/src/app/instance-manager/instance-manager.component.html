@@ -6,7 +6,7 @@
 </div>
 <div class="row">
   <div class="col-xs-3">
-    <button class="btn btn-primary">Launch a new Wordpress AMI</button>
+    <button class="btn btn-primary" routerLink="/new" [ngClass]="{disabled: instance}">Launch a new Wordpress AMI</button>
   </div>
   <div class="col-xs-1 col-md-offset-7">
     <button type="button" class="btn btn-default">
@@ -28,7 +28,8 @@
         <th>Actions</th>
       </tr>
       </thead>
-      <tbody>
+
+      <tbody *ngIf="instance; else noInstance">
       <tr>
         <td>My Wordpress</td>
         <td>4.7.3.0</td>
@@ -48,7 +49,9 @@
         </td>
       </tr>
       </tbody>
+      <ng-template #noInstance>
+        <h1 style="color:red">No instance available</h1>
+      </ng-template>
     </table>
-
   </div>
 </div>

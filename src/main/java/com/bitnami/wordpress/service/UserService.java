@@ -1,6 +1,6 @@
 package com.bitnami.wordpress.service;
 
-import com.bitnami.wordpress.model.User;
+import com.bitnami.wordpress.model.entity.User;
 import com.bitnami.wordpress.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -41,7 +41,6 @@ public class UserService implements UserDetailsService {
     @Transactional
     public User save(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setConfiguration(configurationService.getConfiguration());
         userRepository.save(user);
         return user;
     }

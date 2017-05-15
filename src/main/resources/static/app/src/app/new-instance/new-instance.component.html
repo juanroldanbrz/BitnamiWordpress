@@ -1,0 +1,57 @@
+<div class="row">
+  <div class="page-header">
+    <h1><small>Create a Wordpress new instance</small></h1>
+  </div>
+  <br>
+</div>
+<div class="row" *ngIf="configuration">
+  <form class="form-horizontal">
+
+    <div class="form-group">
+      <label class="control-label col-xs-3">Instance name:</label>
+      <div class="col-xs-9">
+        <input type="text" [(ngModel)]="instanceName" placeholder="WordpressInstance" name="wordpress">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-xs-3">Ami identifier:</label>
+      <div class="col-xs-9">
+        <p class="form-control-static">{{configuration.amiIdentifier}}</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-xs-3">Wordpress version:</label>
+      <div class="col-xs-9">
+        <p class="form-control-static">{{configuration.wordpressVersion}}</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-xs-3">OS Version:</label>
+      <div class="col-xs-9">
+        <p class="form-control-static">{{configuration.osVersion}}</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-xs-3">Instance Type:</label>
+      <div class="col-xs-9">
+        <p class="form-control-static">{{configuration.instanceType}}</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-xs-3">Region:</label>
+      <div class="col-xs-9">
+        <p class="form-control-static">{{configuration.region}}</p>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="row" *ngIf="configuration">
+  <div class="col-xs-3 col-xs-offset-5">
+    <button class="btn btn-primary" [ngClass]="{disabled: btnDisabled}" (click)="launchInstance()">Launch the instance</button>
+  </div>
+</div>

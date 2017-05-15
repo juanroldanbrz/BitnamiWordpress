@@ -8,9 +8,12 @@ import { NavigationBarComponent } from './navigation-bar/navigation-bar.componen
 import { InstanceManagerComponent } from './instance-manager/instance-manager.component';
 import { CredentialsManagerComponent } from './credentials-manager/credentials-manager.component';
 import {RouterModule, Routes} from "@angular/router";
+import { NewInstanceComponent } from './new-instance/new-instance.component';
+import {ServerService} from "./server.service";
 
 const appRoutes: Routes = [
   { path: 'instance', component: InstanceManagerComponent },
+  { path: 'new', component: NewInstanceComponent },
   { path: 'settings',      component: CredentialsManagerComponent },
   { path: '**',
     redirectTo: '/instance',
@@ -23,7 +26,8 @@ const appRoutes: Routes = [
     AppComponent,
     NavigationBarComponent,
     InstanceManagerComponent,
-    CredentialsManagerComponent
+    CredentialsManagerComponent,
+    NewInstanceComponent
   ],
   imports: [
     BrowserModule,
@@ -31,7 +35,9 @@ const appRoutes: Routes = [
     HttpModule,
     RouterModule.forRoot(appRoutes)
   ],
-  providers: [],
+  providers: [
+    ServerService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

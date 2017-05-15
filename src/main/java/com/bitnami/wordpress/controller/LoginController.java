@@ -1,6 +1,6 @@
 package com.bitnami.wordpress.controller;
 
-import com.bitnami.wordpress.model.User;
+import com.bitnami.wordpress.model.entity.User;
 import com.bitnami.wordpress.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

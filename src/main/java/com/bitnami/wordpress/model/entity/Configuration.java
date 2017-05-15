@@ -1,4 +1,4 @@
-package com.bitnami.wordpress.model;
+package com.bitnami.wordpress.model.entity;
 
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ec2.model.InstanceType;
@@ -21,7 +21,7 @@ public class Configuration {
     private InstanceType instanceType;
 
     @OneToMany(mappedBy = "configuration", fetch=FetchType.LAZY)
-    private Set<User> userSet;
+    private Set<Instance> instancesSet;
 
     public Configuration(){}
 
@@ -73,19 +73,19 @@ public class Configuration {
         this.id = id;
     }
 
-    public Set<User> getUserSet() {
-        return null;
-    }
-
-    public void setUserSet(Set<User> userSet) {
-        this.userSet = userSet;
-    }
-
     public InstanceType getInstanceType() {
         return instanceType;
     }
 
     public void setInstanceType(InstanceType instanceType) {
         this.instanceType = instanceType;
+    }
+
+    public Set<Instance> getInstancesSet() {
+        return null;
+    }
+
+    public void setInstancesSet(Set<Instance> instancesSet) {
+        this.instancesSet = instancesSet;
     }
 }

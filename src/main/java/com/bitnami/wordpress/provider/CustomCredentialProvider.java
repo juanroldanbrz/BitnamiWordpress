@@ -2,7 +2,7 @@ package com.bitnami.wordpress.provider;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
-import com.bitnami.wordpress.model.User;
+import com.bitnami.wordpress.model.entity.User;
 
 public class CustomCredentialProvider implements AWSCredentialsProvider {
     private String AWSAccessKeyId;

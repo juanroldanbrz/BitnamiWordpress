@@ -1,9 +1,8 @@
-package com.bitnami.wordpress.model;
+package com.bitnami.wordpress.model.entity;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "user")
@@ -26,10 +25,8 @@ public class User {
     @NotEmpty
     private String AWSSecretKey;
 
-    @ManyToOne(cascade=CascadeType.ALL)
-    private Configuration configuration;
-
-    private String instanceId;
+    @OneToOne
+    private Instance instance;
 
     public User(){}
 
@@ -45,12 +42,16 @@ public class User {
         this.AWSSecretKey = AWSSecretKey;
     }
 
-    public Configuration getConfiguration() {
-        return configuration;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
+    public Instance getInstance() {
+        return instance;
+    }
+
+    public void setInstance(Instance instance) {
+        this.instance = instance;
     }
 
     public Long getId() {
@@ -87,13 +88,5 @@ public class User {
 
     public void setAWSSecretKey(String AWSSecretKey) {
         this.AWSSecretKey = AWSSecretKey;
-    }
-
-    public String getInstanceId() {
-        return instanceId;
-    }
-
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
     }
 }
