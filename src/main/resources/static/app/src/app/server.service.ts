@@ -23,6 +23,6 @@ export class ServerService {
   }
 
   launchInstance(instanceName: string, configurationId: number){
-    return this.http.get('/api/launchAMI?instanceName='+instanceName+"&configurationId="+configurationId, "");
+    return this.http.get('/api/instance/new?instanceName='+instanceName+"&configurationId="+configurationId, "");
   }
 }
