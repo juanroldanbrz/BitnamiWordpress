@@ -89,10 +89,6 @@ public class Instance {
         this.reservationId = reservationId;
     }
 
-    public String getInstance_identifier() {
-        return instance_identifier;
-    }
-
     public void setInstance_identifier(String instance_identifier) {
         this.instance_identifier = instance_identifier;
     }

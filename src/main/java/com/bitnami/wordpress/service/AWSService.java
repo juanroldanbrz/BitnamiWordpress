@@ -53,25 +53,37 @@ public class AWSService {
                 .withMinCount(1)
                 .withSecurityGroupIds(configuration.getSecurityGroupId());
 
-        RunInstancesResult responseResult = ec2.runInstances(runInstancesRequest);
-        String reservationId = responseResult.getReservation().getReservationId();
-
-        com.amazonaws.services.ec2.model.Instance createdInstance =
-                responseResult.getReservation().getInstances()
-                        .stream()
-                        .findFirst()
-                        .orElse(null);
-
-        String instanceIdentifier = createdInstance.getInstanceId();
-
-        Instance instance = new Instance(reservationId, instanceIdentifier, instanceName,
-                createdInstance.getState().getName(), INITIAL_STATUS,
-                createdInstance.getPublicDnsName(), configuration);
-
         User user = userService.getLoggedUser();
-        instanceRepository.save(instance);
-        user.setInstance(instance);
-        userService.save(user);
+
+        try {
+            RunInstancesResult responseResult = ec2.runInstances(runInstancesRequest);
+            String reservationId = responseResult.getReservation().getReservationId();
+            com.amazonaws.services.ec2.model.Instance createdInstance =
+                    responseResult.getReservation().getInstances()
+                            .stream()
+                            .findFirst()
+                            .orElse(null);
+
+            String instanceIdentifier = createdInstance.getInstanceId();
+
+            Instance instance = new Instance(reservationId, instanceIdentifier, instanceName,
+                    createdInstance.getState().getName(), INITIAL_STATUS,
+                    createdInstance.getPublicDnsName(), configuration);
+
+            instanceRepository.save(instance);
+            user.setInstance(instance);
+            userService.save(user);
+
+            String toLog = String.format("launchImage: InstanceName <%s>, configurationId <%d>, newInstanceId <%s>"
+                    ,instanceName, configurationId, instance.getInstanceIdentifier());
+
+            logger.debug(toLog);
+
+        } catch (AmazonEC2Exception toPropagate) {
+            String toLog = String.format("launchImage>newInstance: UserID<%d>", user.getId());
+            logger.error(toLog);
+        }
+
     }
 
     public void stopInstance(Instance instance){
@@ -82,13 +94,12 @@ public class AWSService {
 
         executor.execute(() ->
                 {
-                    long past = System.currentTimeMillis();
                     ec2.stopInstances(stopInstancesRequest);
-                    long future = System.currentTimeMillis();
 
-                    String toLog = String.format("stopInstance: %d ms", future - past);
+                    String toLog = String.format("stopInstance: Instance <%d>, AWSInstance <%s>", instance.getId(),
+                            instance.getInstanceIdentifier());
+
                     logger.debug(toLog);
-
                 });
     }
 
@@ -100,11 +111,11 @@ public class AWSService {
 
         executor.execute(() ->
         {
-            long past = System.currentTimeMillis();
             ec2.startInstances(startInstancesRequest);
-            long future = System.currentTimeMillis();
 
-            String toLog = String.format("startInstance: %d ms", future - past);
+            String toLog = String.format("startInstance: Instance <%d>, AWSInstance <%s>", instance.getId(),
+                    instance.getInstanceIdentifier());
+
             logger.debug(toLog);
         });
     }
@@ -119,6 +130,11 @@ public class AWSService {
         executor.execute(() ->
         {
             ec2.terminateInstances(terminateInstancesRequest);
+
+            String toLog = String.format("terminateInstance: Instance <%d>, AWSInstance <%s>", instance.getId(),
+                    instance.getInstanceIdentifier());
+
+            logger.debug(toLog);
         });
 
         User user = userService.getLoggedUser();
@@ -134,10 +150,14 @@ public class AWSService {
         RebootInstancesRequest  rebootInstancesRequest = new RebootInstancesRequest ()
                 .withInstanceIds(instance.getInstanceIdentifier());
 
-        //@TODO Remove executor
         executor.execute(() ->
         {
             ec2.rebootInstances(rebootInstancesRequest);
+
+            String toLog = String.format("restartInstance: Instance <%d>, AWSInstance <%s>", instance.getId(),
+                    instance.getInstanceIdentifier());
+
+            logger.debug(toLog);
         });
     }
 
@@ -160,6 +180,11 @@ public class AWSService {
             return status.getInstanceStatus().getStatus();
         }
 
+        String toLog = String.format("getAWSInstanceStatus: Instance <%d>, AWSInstance <%s>", instance.getId(),
+                instance.getInstanceIdentifier());
+
+        logger.debug(toLog);
+
         return "";
     }
 
@@ -176,6 +201,11 @@ public class AWSService {
                 .stream()
                 .filter((reservation -> reservation.getReservationId().equals(instance.getReservationId())))
                 .findFirst().orElse(null);
+
+        String toLog = String.format("Instance <%d> :getAWSInstance, AWSInstance <%s>", instance.getId(),
+                instance.getInstanceIdentifier());
+
+        logger.debug(toLog);
 
         return currentReservation.getInstances()
                 .stream()
