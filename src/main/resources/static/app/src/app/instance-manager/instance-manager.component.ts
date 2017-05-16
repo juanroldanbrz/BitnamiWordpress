@@ -61,7 +61,7 @@ export class InstanceManagerComponent implements OnInit {
     } else if(status === 'stopped'){
       this.startButtonEnabled = true;
       this.stopButtonEnabled = false;
-      this.resetButtonEnabled = true;
+      this.resetButtonEnabled = false;
       this.terminateButtonEnabled = true;
     }
   }
