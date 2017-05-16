@@ -18,6 +18,7 @@ import javax.transaction.Transactional;
 public class AWSService {
 
     private static final String INITIAL_STATUS = "Initializing";
+    private static final String SECURITY_GROUP_BITNAMI = "sg-e51a689b";
 
     @Autowired
     private IConfigurationService configurationService;
@@ -44,7 +45,8 @@ public class AWSService {
                 .withImageId(configuration.getAmiIdentifier())
                 .withInstanceType(configuration.getInstanceType())
                 .withMaxCount(1)
-                .withMinCount(1);
+                .withMinCount(1)
+                .withSecurityGroupIds(SECURITY_GROUP_BITNAMI);
 
         RunInstancesResult responseResult = ec2.runInstances(runInstancesRequest);
         String reservationId = responseResult.getReservation().getReservationId();
@@ -133,7 +135,7 @@ public class AWSService {
         DescribeInstanceStatusResult response =
                 ec2.describeInstanceStatus(statusRequest);
 
-        AMIInstanceStatus amiInstanceStatus = new AMIInstanceStatus();
+        AMIInstanceStatus amiInstanceStatus = null;
 
         InstanceStatus status = response.getInstanceStatuses().stream()
                 .filter( (currentInstance) -> currentInstance.getInstanceId().equals(instance.getInstanceIdentifier()) )
@@ -141,7 +143,7 @@ public class AWSService {
                 .orElse(null);
 
         if(status != null){
-            return new AMIInstanceStatus(status.getInstanceState().getName(),
+            amiInstanceStatus = new AMIInstanceStatus(status.getInstanceState().getName(),
                     status.getInstanceStatus().getStatus());
         }
 
