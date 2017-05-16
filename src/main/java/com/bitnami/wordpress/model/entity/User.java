@@ -18,7 +18,6 @@ public class User {
     private String username;
 
     @NotEmpty
-    @Column(name = "password", length = 64)
     private String password;
 
     @NotEmpty
