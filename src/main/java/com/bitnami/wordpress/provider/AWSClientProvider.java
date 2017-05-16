@@ -22,7 +22,7 @@ public class AWSClientProvider {
 
         return AmazonEC2ClientBuilder.standard()
                 .withCredentials(new CustomCredentialProvider(userService.getLoggedUser()))
-                .withRegion(Regions.US_EAST_1)
+                .withRegion(Regions.US_EAST_1) //@TODO Change to User.getRegion
                 .build();
     }
 }

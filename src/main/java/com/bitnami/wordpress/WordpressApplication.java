@@ -11,7 +11,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @EnableJpaRepositories
 public class WordpressApplication {
 
-	//@TODO Add proper logging
 	public static void main(String[] args) {
 		SpringApplication.run(WordpressApplication.class, args);
 	}
