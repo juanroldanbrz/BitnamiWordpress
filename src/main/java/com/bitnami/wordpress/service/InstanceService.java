@@ -37,8 +37,7 @@ public class InstanceService {
 
         Instance instance = user.getInstance();
         if(StringUtils.isEmpty(instance.getUrl())){
-            instance.setUrl(
-                    awsService.getAWSInstance(instance).getPublicDnsName());
+            instance.setUrl(getInstanceUrl(instance));
         }
 
         return updateInstanceStatus(instance);
@@ -61,5 +60,15 @@ public class InstanceService {
 
         instanceRepository.save(instance);
         return instance;
+    }
+
+    public String getInstanceUrl(Instance instance){
+        com.amazonaws.services.ec2.model.Instance awsInstance =
+                awsService.getAWSInstance(instance);
+        String url = awsInstance.getPublicDnsName();
+        instance.setUrl(url);
+
+        instanceRepository.save(instance);
+        return url;
     }
 }

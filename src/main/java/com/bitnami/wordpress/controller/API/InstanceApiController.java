@@ -74,4 +74,10 @@ public class InstanceApiController {
         User user = userService.find(principal.getName());
         return instanceService.getInstanceStatus(user.getInstance());
     }
+
+    @RequestMapping(value = "/url", method = RequestMethod.GET)
+    public String getUrl(Principal principal){
+        User user = userService.find(principal.getName());
+        return instanceService.getInstanceUrl(user.getInstance());
+    }
 }

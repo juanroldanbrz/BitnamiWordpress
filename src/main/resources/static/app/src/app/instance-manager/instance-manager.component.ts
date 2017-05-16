@@ -43,6 +43,7 @@ export class InstanceManagerComponent implements OnInit {
     this.instance.state = state;
 
     if(state === 'running'){
+      this.getInstanceUrl();
       this.startButtonEnabled = false;
       this.stopButtonEnabled = true;
       this.resetButtonEnabled = true;
@@ -73,6 +74,16 @@ export class InstanceManagerComponent implements OnInit {
     this.instance.state = instanceStatus.state;
     this.instance.status = instanceStatus.status;
     this.renderState(instanceStatus.state);
+  }
+
+  getInstanceUrl(){
+    if(this.instance) {
+      this.serverService.getInstanceUrl()
+        .subscribe(
+          (url: any) => this.instance.url = url,
+          (error) => this.loadInitialData()
+        )
+    }
   }
 
   reloadInstanceStatus(){

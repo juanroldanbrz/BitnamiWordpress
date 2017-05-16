@@ -78,4 +78,12 @@ export class ServerService {
     );
   }
 
+  getInstanceUrl(){
+    return this.http.get('/api/instance/url').map(
+      (response: Response) => {
+        return response.text();
+      }
+    );
+  }
+
 }
