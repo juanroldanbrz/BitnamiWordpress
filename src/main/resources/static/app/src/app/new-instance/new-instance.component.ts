@@ -26,12 +26,14 @@ export class NewInstanceComponent implements OnInit {
   }
 
   launchInstance(){
-    this.btnDisabled = true;
-    this.serverService.launchInstance(this.instanceName, this.configuration.id)
-      .subscribe(
-        (response: Response) => {
-          this.router.navigate(['/instance']);
-        }
-      )
+    if(!this.btnDisabled){
+      this.btnDisabled = true;
+      this.serverService.launchInstance(this.instanceName, this.configuration.id)
+        .subscribe(
+          (response: Response) => {
+            this.router.navigate(['/instance']);
+          }
+        )
+    }
   }
 }
