@@ -1,6 +1,5 @@
 package com.bitnami.wordpress.model.entity;
 
-import com.sun.istack.internal.Nullable;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
@@ -28,7 +27,6 @@ public class User {
     //@TODO Encrypt this
     private String AWSSecretKey;
 
-    @Nullable
     @OneToOne(fetch = FetchType.EAGER)
     private Instance instance;
 
