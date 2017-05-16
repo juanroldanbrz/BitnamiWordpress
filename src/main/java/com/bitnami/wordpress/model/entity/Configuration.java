@@ -18,6 +18,7 @@ public class Configuration {
     private String wordpressVersion;
     private String osVersion;
     private Regions region;
+    private String securityGroupId;
     private InstanceType instanceType;
 
     @OneToMany(mappedBy = "configuration", fetch=FetchType.LAZY)
@@ -25,10 +26,12 @@ public class Configuration {
 
     public Configuration(){}
 
-    public Configuration(String amiIdentifier, String wordpressVersion, String osVersion, Regions region, InstanceType instanceType) {
+    public Configuration(String amiIdentifier, String wordpressVersion, String osVersion, Regions region,
+                         String securityGroupId, InstanceType instanceType) {
         this.amiIdentifier = amiIdentifier;
         this.wordpressVersion = wordpressVersion;
         this.osVersion = osVersion;
+        this.securityGroupId = securityGroupId;
         this.region = region;
         this.instanceType = instanceType;
     }
@@ -87,5 +90,13 @@ public class Configuration {
 
     public void setInstancesSet(Set<Instance> instancesSet) {
         this.instancesSet = instancesSet;
+    }
+
+    public String getSecurityGroupId() {
+        return securityGroupId;
+    }
+
+    public void setSecurityGroupId(String securityGroupId) {
+        this.securityGroupId = securityGroupId;
     }
 }

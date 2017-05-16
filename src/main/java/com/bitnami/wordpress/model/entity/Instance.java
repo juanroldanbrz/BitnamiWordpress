@@ -13,19 +13,21 @@ public class Instance {
     private String reservationId;
     private String instance_identifier;
     private String name;
+    private String state;
     private String status;
     private String url;
 
-    @ManyToOne(cascade=CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Configuration configuration;
 
     public Instance(){}
 
-    public Instance(String reservationId, String instance_identifier, String name, String status,
+    public Instance(String reservationId, String instance_identifier, String name, String state, String status,
                     String url, Configuration configuration) {
         this.reservationId = reservationId;
         this.instance_identifier = instance_identifier;
         this.name = name;
+        this.state = state;
         this.status = status;
         this.url = url;
         this.configuration = configuration;
@@ -55,12 +57,12 @@ public class Instance {
         this.name = name;
     }
 
-    public String getStatus() {
-        return status;
+    public String getState() {
+        return state;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setState(String state) {
+        this.state = state;
     }
 
     public String getUrl() {
@@ -93,5 +95,13 @@ public class Instance {
 
     public void setInstance_identifier(String instance_identifier) {
         this.instance_identifier = instance_identifier;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

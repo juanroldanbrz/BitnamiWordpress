@@ -23,6 +23,7 @@ public class ConfigurationService implements IConfigurationService {
                 "WordPress 4.7.4-0 (64-bit)",
                 "Ubuntu 14.04.3-x86",
                 Regions.US_EAST_1,
+                "sg-e51a689b",
                 InstanceType.T1Micro);
 
         Configuration storedConfig = configurationRepository.findByAmiIdentifier(AMIIdentifier);

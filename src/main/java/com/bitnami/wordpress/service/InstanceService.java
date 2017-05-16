@@ -1,17 +1,22 @@
 package com.bitnami.wordpress.service;
 
 import com.bitnami.wordpress.exception.NoInstanceException;
+import com.bitnami.wordpress.model.AMIInstanceStatus;
 import com.bitnami.wordpress.model.entity.Instance;
 import com.bitnami.wordpress.model.entity.User;
 import com.bitnami.wordpress.repository.InstanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.util.StringUtils;
 
 @Service
 public class InstanceService {
 
     @Autowired
     private AWSService awsService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private InstanceRepository instanceRepository;
@@ -24,28 +29,46 @@ public class InstanceService {
         instanceRepository.delete(id);
     }
 
-    public Instance getInstance(User user){
+    public Instance getUpdatedInstance(){
+        User user = userService.getLoggedUser();
         if(user.getInstance() == null){
             throw new NoInstanceException();
         }
 
-        return updateInstanceStatus(user);
-    }
-
-    public String getInstanceStatus(User user){
-        return updateInstanceStatus(user).getStatus();
-    }
-
-    private Instance updateInstanceStatus(User user){
-        com.amazonaws.services.ec2.model.Instance awsInstance = awsService.getAWSInstance(user);
         Instance instance = user.getInstance();
-        instance.setStatus(awsInstance.getState().getName());
-
-        if(instance.getUrl().isEmpty()){
-            instance.setUrl(awsInstance.getPublicDnsName());
+        if(StringUtils.isEmpty(instance.getUrl())){
+            instance.setUrl(getInstanceUrl(instance));
         }
+
+        return updateInstanceStatus(instance);
+    }
+
+    public AMIInstanceStatus getInstanceStatus(Instance instance){
+        Instance updatedInstance = updateInstanceStatus(instance);
+        return new AMIInstanceStatus(updatedInstance.getState(),
+                updatedInstance.getStatus());
+    }
+
+    private Instance updateInstanceStatus(Instance instance){
+        com.amazonaws.services.ec2.model.Instance awsInstance =
+                awsService.getAWSInstance(instance);
+
+        String status = awsService.getAWSInstanceStatus(instance);
+
+        instance.setState(awsInstance.getState().getName());
+        instance.setStatus(status);
 
         instanceRepository.save(instance);
         return instance;
+    }
+
+    public String getInstanceUrl(Instance instance){
+        com.amazonaws.services.ec2.model.Instance awsInstance =
+                awsService.getAWSInstance(instance);
+        String url = awsInstance.getPublicDnsName();
+        instance.setUrl(url);
+
+        instanceRepository.save(instance);
+        return url;
     }
 }

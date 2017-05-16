@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {Instance} from "app/model/instance.model";
 import {ServerService} from "../server.service";
 import {Router} from "@angular/router";
+import {InstanceStatus} from "../model/instance-status.model";
 
 @Component({
   selector: 'app-instance-manager',
@@ -10,6 +11,8 @@ import {Router} from "@angular/router";
 })
 export class InstanceManagerComponent implements OnInit {
   instance: Instance;
+
+  timeout: number = 700;
 
   launchButtonEnabled: boolean = false;
   startButtonEnabled: boolean = false;
@@ -33,7 +36,25 @@ export class InstanceManagerComponent implements OnInit {
 
   initData(data: Instance){
     this.instance = data;
-    this.parseInstanceStatus(data.status);
+    this.renderState(data.state);
+  }
+
+  renderState(state: string){
+    this.instance.state = state;
+
+    if(state === 'running'){
+      this.getInstanceUrl();
+      this.startButtonEnabled = false;
+      this.stopButtonEnabled = true;
+      this.resetButtonEnabled = true;
+      this.terminateButtonEnabled = true;
+
+    } else if(state === 'stopped'){
+      this.startButtonEnabled = true;
+      this.stopButtonEnabled = false;
+      this.resetButtonEnabled = false;
+      this.terminateButtonEnabled = true;
+    }
   }
 
   enableLaunchButton() {
@@ -48,21 +69,20 @@ export class InstanceManagerComponent implements OnInit {
     this.terminateButtonEnabled = false;
   }
 
-  parseInstanceStatus(status: string){
+  parseInstanceStatus(instanceStatus: InstanceStatus){
     this.disableAllButtons();
-    this.instance.status = status;
+    this.instance.state = instanceStatus.state;
+    this.instance.status = instanceStatus.status;
+    this.renderState(instanceStatus.state);
+  }
 
-    if(status === 'running'){
-      this.startButtonEnabled = false;
-      this.stopButtonEnabled = true;
-      this.resetButtonEnabled = true;
-      this.terminateButtonEnabled = true;
-
-    } else if(status === 'stopped'){
-      this.startButtonEnabled = true;
-      this.stopButtonEnabled = false;
-      this.resetButtonEnabled = true;
-      this.terminateButtonEnabled = true;
+  getInstanceUrl(){
+    if(this.instance) {
+      this.serverService.getInstanceUrl()
+        .subscribe(
+          (url: any) => this.instance.url = url,
+          (error) => this.loadInitialData()
+        )
     }
   }
 
@@ -70,7 +90,7 @@ export class InstanceManagerComponent implements OnInit {
     if(this.instance) {
       this.serverService.getInstanceStatus()
         .subscribe(
-          (data: string) => this.parseInstanceStatus(data),
+          (data: InstanceStatus) => this.parseInstanceStatus(data),
           (error) => this.loadInitialData()
         )
     }
@@ -81,7 +101,8 @@ export class InstanceManagerComponent implements OnInit {
       this.disableAllButtons();
       this.serverService.stopInstance()
         .subscribe(
-          (data: any) => this.parseInstanceStatus("stopping"),
+          (data: any) =>
+            setTimeout(() => { this.reloadInstanceStatus();}, this.timeout),
           (error) => this.loadInitialData()
         )
     }
@@ -92,9 +113,10 @@ export class InstanceManagerComponent implements OnInit {
       this.disableAllButtons();
       this.serverService.startInstance()
         .subscribe(
-          (data: any) => this.parseInstanceStatus("pending"),
-          (error) => this.loadInitialData()
-        )
+          (data: any) =>
+            setTimeout(() => { this.reloadInstanceStatus();}, this.timeout),
+              (error) => this.loadInitialData()
+        );
     }
   }
 
@@ -103,7 +125,7 @@ export class InstanceManagerComponent implements OnInit {
       this.disableAllButtons();
       this.serverService.restartInstance()
         .subscribe(
-          (data: any) => this.parseInstanceStatus("restarting"),
+          (data: any) => setTimeout(() => { this.reloadInstanceStatus();}, this.timeout),
           (error) => this.loadInitialData()
         )
     }

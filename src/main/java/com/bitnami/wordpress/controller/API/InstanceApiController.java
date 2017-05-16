@@ -1,5 +1,6 @@
 package com.bitnami.wordpress.controller.API;
 
+import com.bitnami.wordpress.model.AMIInstanceStatus;
 import com.bitnami.wordpress.model.entity.Instance;
 import com.bitnami.wordpress.model.entity.User;
 import com.bitnami.wordpress.service.AWSService;
@@ -32,46 +33,51 @@ public class InstanceApiController {
                     @RequestParam(value = "instanceName", required = false) String instanceName,
                     @RequestParam(value = "configurationId", required = false) String configurationId){
         User user = userService.find(principal.getName());
-        awsService.launchImage(user, instanceName, Long.valueOf(configurationId));
+        awsService.launchImage(instanceName, Long.valueOf(configurationId));
     }
 
     @RequestMapping(value = "/start", method = RequestMethod.POST)
     public DefaultResponse startAmi(Principal principal){
         User user = userService.find(principal.getName());
-        awsService.startInstance(user);
+        awsService.startInstance(user.getInstance());
         return new DefaultResponse("OK");
     }
 
     @RequestMapping(value = "/stop", method = RequestMethod.POST)
     public DefaultResponse stopAmi(Principal principal){
         User user = userService.find(principal.getName());
-        awsService.stopInstance(user);
+        awsService.stopInstance(user.getInstance());
         return new DefaultResponse("OK");
     }
 
     @RequestMapping(value = "/restart", method = RequestMethod.POST)
     public DefaultResponse restartAmi(Principal principal){
         User user = userService.find(principal.getName());
-        awsService.restartInstance(user);
+        awsService.restartInstance(user.getInstance());
         return new DefaultResponse("OK");
     }
 
     @RequestMapping(value = "/terminate", method = RequestMethod.POST)
     public DefaultResponse terminateAmi(Principal principal){
         User user = userService.find(principal.getName());
-        awsService.terminateInstance(user);
+        awsService.terminateInstance(user.getInstance());
         return new DefaultResponse("OK");
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    public Instance ami(Principal principal){
-        User user = userService.find(principal.getName());
-        return instanceService.getInstance(user);
+    public Instance ami(){
+        return instanceService.getUpdatedInstance();
     }
 
     @RequestMapping(value = "/status", method = RequestMethod.GET)
-    public String status(Principal principal){
+    public AMIInstanceStatus status(Principal principal){
         User user = userService.find(principal.getName());
-        return instanceService.getInstanceStatus(user);
+        return instanceService.getInstanceStatus(user.getInstance());
+    }
+
+    @RequestMapping(value = "/url", method = RequestMethod.GET)
+    public String getUrl(Principal principal){
+        User user = userService.find(principal.getName());
+        return instanceService.getInstanceUrl(user.getInstance());
     }
 }
