@@ -3,11 +3,14 @@ package com.bitnami.wordpress.service;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.model.*;
 import com.amazonaws.services.ec2.model.InstanceStatus;
+import com.bitnami.wordpress.controller.API.APIControllerAdvice;
 import com.bitnami.wordpress.model.*;
 import com.bitnami.wordpress.model.entity.Configuration;
 import com.bitnami.wordpress.model.entity.Instance;
 import com.bitnami.wordpress.model.entity.User;
 import com.bitnami.wordpress.provider.AWSClientProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
@@ -33,6 +36,9 @@ public class AWSService {
 
     @Autowired
     private AWSClientProvider awsClientProvider;
+
+    private static final Logger logger = LoggerFactory.getLogger(AWSService.class);
+
 
     @Transactional
     public void launchImage(String instanceName, long configurationId ){
@@ -76,7 +82,13 @@ public class AWSService {
 
         executor.execute(() ->
                 {
+                    long past = System.currentTimeMillis();
                     ec2.stopInstances(stopInstancesRequest);
+                    long future = System.currentTimeMillis();
+
+                    String toLog = String.format("stopInstance: %d ms", future - past);
+                    logger.debug(toLog);
+
                 });
     }
 
@@ -88,7 +100,12 @@ public class AWSService {
 
         executor.execute(() ->
         {
+            long past = System.currentTimeMillis();
             ec2.startInstances(startInstancesRequest);
+            long future = System.currentTimeMillis();
+
+            String toLog = String.format("startInstance: %d ms", future - past);
+            logger.debug(toLog);
         });
     }
 

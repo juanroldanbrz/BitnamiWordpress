@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class LoginController {
 
+    public static final String FORM_TO_DISPLAY = "formToDisplay";
+
     @Autowired
     private UserService userService;
 
@@ -23,7 +25,7 @@ public class LoginController {
             model.addAttribute("hasError", true);
         }
 
-        model.addAttribute("formToDisplay", "login");
+        model.addAttribute(FORM_TO_DISPLAY, "login");
         return "auth";
     }
 
@@ -34,7 +36,7 @@ public class LoginController {
         }
 
         model.addAttribute("user", new User());
-        model.addAttribute("formToDisplay", "register");
+        model.addAttribute(FORM_TO_DISPLAY, "register");
         return "auth";
     }
 
@@ -42,7 +44,7 @@ public class LoginController {
     public String registerUser(Model model, @ModelAttribute User user){
         if (userService.find(user.getUsername()) != null) {
             model.addAttribute("hasError", true);
-            model.addAttribute("formToDisplay", "register");
+            model.addAttribute(FORM_TO_DISPLAY, "register");
             return "auth";
         }
 
