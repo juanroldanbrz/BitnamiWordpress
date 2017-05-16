@@ -65,14 +65,13 @@ public class InstanceApiController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    public Instance ami(Principal principal){
-        User user = userService.find(principal.getName());
-        return instanceService.getInstance(user);
+    public Instance ami(){
+        return instanceService.getUpdatedInstance();
     }
 
     @RequestMapping(value = "/status", method = RequestMethod.GET)
     public AMIInstanceStatus status(Principal principal){
         User user = userService.find(principal.getName());
-        return instanceService.getInstanceStatus(user);
+        return instanceService.getInstanceStatus(user.getInstance());
     }
 }

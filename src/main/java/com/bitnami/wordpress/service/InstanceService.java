@@ -7,12 +7,16 @@ import com.bitnami.wordpress.model.entity.User;
 import com.bitnami.wordpress.repository.InstanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.util.StringUtils;
 
 @Service
 public class InstanceService {
 
     @Autowired
     private AWSService awsService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private InstanceRepository instanceRepository;
@@ -25,22 +29,27 @@ public class InstanceService {
         instanceRepository.delete(id);
     }
 
-    public Instance getInstance(User user){
+    public Instance getUpdatedInstance(){
+        User user = userService.getLoggedUser();
         if(user.getInstance() == null){
             throw new NoInstanceException();
         }
 
-        return updateInstanceStatus(user);
+        Instance instance = user.getInstance();
+        if(StringUtils.isEmpty(instance.getUrl())){
+            instance.setUrl(awsService.getInstanceUrl(instance));
+        }
+
+        return updateInstanceStatus(instance);
     }
 
-    public AMIInstanceStatus getInstanceStatus(User user){
-        Instance updatedInstance = updateInstanceStatus(user);
+    public AMIInstanceStatus getInstanceStatus(Instance instance){
+        Instance updatedInstance = updateInstanceStatus(instance);
         return new AMIInstanceStatus(updatedInstance.getState(),
                 updatedInstance.getStatus());
     }
 
-    private Instance updateInstanceStatus(User user){
-        Instance instance = user.getInstance();
+    private Instance updateInstanceStatus(Instance instance){
         AMIInstanceStatus amiInstanceStatus = awsService.getAWSInstanceStatus(instance);
         if(amiInstanceStatus != null) {
             instance.setState(amiInstanceStatus.getState());

@@ -18,7 +18,6 @@ import javax.transaction.Transactional;
 public class AWSService {
 
     private static final String INITIAL_STATUS = "Initializing";
-    private static final String SECURITY_GROUP_BITNAMI = "sg-e51a689b";
 
     @Autowired
     private IConfigurationService configurationService;
@@ -46,7 +45,7 @@ public class AWSService {
                 .withInstanceType(configuration.getInstanceType())
                 .withMaxCount(1)
                 .withMinCount(1)
-                .withSecurityGroupIds(SECURITY_GROUP_BITNAMI);
+                .withSecurityGroupIds(configuration.getSecurityGroupId());
 
         RunInstancesResult responseResult = ec2.runInstances(runInstancesRequest);
         String reservationId = responseResult.getReservation().getReservationId();
@@ -79,7 +78,6 @@ public class AWSService {
                 {
                     ec2.stopInstances(stopInstancesRequest);
                 });
-
     }
 
     public void startInstance(Instance instance){
@@ -149,4 +147,28 @@ public class AWSService {
 
         return amiInstanceStatus;
     }
+
+    @Transactional
+    public String getInstanceUrl(Instance instance){
+        AmazonEC2 ec2 = awsClientProvider.createEC2Client();
+
+        DescribeInstancesRequest request = new DescribeInstancesRequest()
+                .withInstanceIds(instance.getInstanceIdentifier());
+
+        DescribeInstancesResult response = ec2.describeInstances(request);
+
+        Reservation currentReservation = response.getReservations()
+                .stream()
+                .filter((reservation -> reservation.getReservationId().equals(instance.getReservationId())))
+                .findFirst().orElse(null);
+
+        com.amazonaws.services.ec2.model.Instance awsInstance = currentReservation.getInstances()
+                .stream()
+                .filter( (currentInstance) -> currentInstance.getInstanceId().equals(instance.getInstanceIdentifier()) )
+                .findFirst()
+                .orElse(null);
+
+        return awsInstance.getPublicDnsName();
+    }
+
 }
