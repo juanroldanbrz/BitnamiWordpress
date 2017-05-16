@@ -28,6 +28,10 @@ $ bower install
 
 ``` 
 $ cd src/main/resources/static/public/app
+$ npm install
 $ ng build
 ```
-6. Run Spring boot application
+6. Run from command line
+```
+$ mvn spring-boot:run
+```
