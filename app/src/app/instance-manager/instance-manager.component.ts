@@ -12,7 +12,7 @@ import {InstanceStatus} from "../model/instance-status.model";
 export class InstanceManagerComponent implements OnInit {
   instance: Instance;
 
-  timeout: number = 700;
+  timeout: number = 1000;
 
   launchButtonEnabled: boolean = false;
   startButtonEnabled: boolean = false;

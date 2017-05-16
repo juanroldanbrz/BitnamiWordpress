@@ -202,7 +202,7 @@ public class AWSService {
                 .filter((reservation -> reservation.getReservationId().equals(instance.getReservationId())))
                 .findFirst().orElse(null);
 
-        String toLog = String.format("Instance <%d> :getAWSInstance, AWSInstance <%s>", instance.getId(),
+        String toLog = String.format("getAWSInstance: Instance <%d>, AWSInstance <%s>", instance.getId(),
                 instance.getInstanceIdentifier());
 
         logger.debug(toLog);
