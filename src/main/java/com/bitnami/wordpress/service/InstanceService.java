@@ -33,13 +33,13 @@ public class InstanceService {
     }
 
     public String getInstanceStatus(User user){
-        return updateInstanceStatus(user).getStatus();
+        return updateInstanceStatus(user).getState();
     }
 
     private Instance updateInstanceStatus(User user){
         com.amazonaws.services.ec2.model.Instance awsInstance = awsService.getAWSInstance(user);
         Instance instance = user.getInstance();
-        instance.setStatus(awsInstance.getState().getName());
+        instance.setState(awsInstance.getState().getName());
 
         if(instance.getUrl().isEmpty()){
             instance.setUrl(awsInstance.getPublicDnsName());

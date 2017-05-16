@@ -35,8 +35,8 @@
         <td>{{instance.name}}</td>
         <td>{{instance.configuration.wordpressVersion}}</td>
         <td>{{instance.configuration.osVersion}}</td>
-        <td>{{instance.status}}</td>
-        <td><a [href]="'http://' + instance.url">Wordpress</a> </td>
+        <td>{{instance.state}}</td>
+        <td><a [href]="'http://' + instance.url" target="_blank">Wordpress</a> </td>
         <td>
           <button type="button" class="btn btn-default" (click)="startInstance()" [ngClass]="{disabled: !startButtonEnabled}">
             <span class="glyphicon glyphicon-play"></span>
