@@ -124,7 +124,7 @@ public class AWSService {
         });
     }
 
-    public AMIInstanceStatus getAWSInstanceStatus(Instance instance){
+    public String getAWSInstanceStatus(Instance instance){
         AmazonEC2 ec2 = awsClientProvider.createEC2Client();
         DescribeInstanceStatusRequest statusRequest =
                 new DescribeInstanceStatusRequest()
@@ -133,23 +133,21 @@ public class AWSService {
         DescribeInstanceStatusResult response =
                 ec2.describeInstanceStatus(statusRequest);
 
-        AMIInstanceStatus amiInstanceStatus = null;
-
         InstanceStatus status = response.getInstanceStatuses().stream()
-                .filter( (currentInstance) -> currentInstance.getInstanceId().equals(instance.getInstanceIdentifier()) )
+                .filter( (currentInstance) -> currentInstance.getInstanceId().equals(
+                        instance.getInstanceIdentifier()) )
                 .findFirst()
                 .orElse(null);
 
         if(status != null){
-            amiInstanceStatus = new AMIInstanceStatus(status.getInstanceState().getName(),
-                    status.getInstanceStatus().getStatus());
+            return status.getInstanceStatus().getStatus();
         }
 
-        return amiInstanceStatus;
+        return "";
     }
 
     @Transactional
-    public String getInstanceUrl(Instance instance){
+    public com.amazonaws.services.ec2.model.Instance getAWSInstance(Instance instance){
         AmazonEC2 ec2 = awsClientProvider.createEC2Client();
 
         DescribeInstancesRequest request = new DescribeInstancesRequest()
@@ -162,13 +160,11 @@ public class AWSService {
                 .filter((reservation -> reservation.getReservationId().equals(instance.getReservationId())))
                 .findFirst().orElse(null);
 
-        com.amazonaws.services.ec2.model.Instance awsInstance = currentReservation.getInstances()
+        return currentReservation.getInstances()
                 .stream()
                 .filter( (currentInstance) -> currentInstance.getInstanceId().equals(instance.getInstanceIdentifier()) )
                 .findFirst()
                 .orElse(null);
-
-        return awsInstance.getPublicDnsName();
     }
 
 }

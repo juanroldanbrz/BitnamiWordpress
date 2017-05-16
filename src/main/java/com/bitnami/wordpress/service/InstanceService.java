@@ -37,7 +37,8 @@ public class InstanceService {
 
         Instance instance = user.getInstance();
         if(StringUtils.isEmpty(instance.getUrl())){
-            instance.setUrl(awsService.getInstanceUrl(instance));
+            instance.setUrl(
+                    awsService.getAWSInstance(instance).getPublicDnsName());
         }
 
         return updateInstanceStatus(instance);
@@ -50,11 +51,13 @@ public class InstanceService {
     }
 
     private Instance updateInstanceStatus(Instance instance){
-        AMIInstanceStatus amiInstanceStatus = awsService.getAWSInstanceStatus(instance);
-        if(amiInstanceStatus != null) {
-            instance.setState(amiInstanceStatus.getState());
-            instance.setStatus(amiInstanceStatus.getStatus());
-        }
+        com.amazonaws.services.ec2.model.Instance awsInstance =
+                awsService.getAWSInstance(instance);
+
+        String status = awsService.getAWSInstanceStatus(instance);
+
+        instance.setState(awsInstance.getState().getName());
+        instance.setStatus(status);
 
         instanceRepository.save(instance);
         return instance;

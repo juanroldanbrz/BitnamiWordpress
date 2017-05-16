@@ -12,6 +12,8 @@ import {InstanceStatus} from "../model/instance-status.model";
 export class InstanceManagerComponent implements OnInit {
   instance: Instance;
 
+  timeout: number = 700;
+
   launchButtonEnabled: boolean = false;
   startButtonEnabled: boolean = false;
   stopButtonEnabled: boolean = false;
@@ -38,6 +40,7 @@ export class InstanceManagerComponent implements OnInit {
   }
 
   renderState(state: string){
+    this.instance.state = state;
 
     if(state === 'running'){
       this.startButtonEnabled = false;
@@ -87,7 +90,8 @@ export class InstanceManagerComponent implements OnInit {
       this.disableAllButtons();
       this.serverService.stopInstance()
         .subscribe(
-          (data: any) => this.renderState("stopping"),
+          (data: any) =>
+            setTimeout(() => { this.reloadInstanceStatus();}, this.timeout),
           (error) => this.loadInitialData()
         )
     }
@@ -98,9 +102,10 @@ export class InstanceManagerComponent implements OnInit {
       this.disableAllButtons();
       this.serverService.startInstance()
         .subscribe(
-          (data: any) => this.renderState("pending"),
-          (error) => this.loadInitialData()
-        )
+          (data: any) =>
+            setTimeout(() => { this.reloadInstanceStatus();}, this.timeout),
+              (error) => this.loadInitialData()
+        );
     }
   }
 
@@ -109,7 +114,7 @@ export class InstanceManagerComponent implements OnInit {
       this.disableAllButtons();
       this.serverService.restartInstance()
         .subscribe(
-          (data: any) => this.renderState("restarting"),
+          (data: any) => setTimeout(() => { this.reloadInstanceStatus();}, this.timeout),
           (error) => this.loadInitialData()
         )
     }
