@@ -21,7 +21,7 @@ public class Configuration {
     private InstanceType instanceType;
 
     @OneToMany(mappedBy = "configuration", fetch=FetchType.LAZY)
-    private Set<Instance> instancesSet;
+    private Set<Instance> instancesSet = null;
 
     public Configuration(){}
 

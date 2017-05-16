@@ -6,10 +6,10 @@
 </div>
 <div class="row">
   <div class="col-xs-3">
-    <button class="btn btn-primary" routerLink="/new" [ngClass]="{disabled: instance}">Launch a new Wordpress AMI</button>
+    <button class="btn btn-primary" routerLink="/new" [ngClass]="{disabled: !launchButtonEnabled}">Launch a new Wordpress AMI</button>
   </div>
   <div class="col-xs-1 col-md-offset-7">
-    <button type="button" class="btn btn-default">
+    <button type="button" class="btn btn-default" (click)="reloadInstanceStatus()">
       <span class="glyphicon glyphicon glyphicon-refresh"></span>
     </button>
   </div>
@@ -20,6 +20,7 @@
     <table class="table">
       <thead class="thead-inverse">
       <tr>
+        <th>Instance ID</th>
         <th>Instance name</th>
         <th>Wordpress Version</th>
         <th>OS Version</th>
@@ -28,30 +29,32 @@
         <th>Actions</th>
       </tr>
       </thead>
-
-      <tbody *ngIf="instance; else noInstance">
+      <tbody *ngIf="instance">
       <tr>
-        <td>My Wordpress</td>
-        <td>4.7.3.0</td>
-        <td>Ubuntu 14.0.3</td>
-        <td>Running</td>
-        <td><a href="http://ec2-54-164-252-146.compute-1.amazonaws.com/">Wordpress</a> </td>
+        <td>{{instance.instance_identifier}}</td>
+        <td>{{instance.name}}</td>
+        <td>{{instance.configuration.wordpressVersion}}</td>
+        <td>{{instance.configuration.osVersion}}</td>
+        <td>{{instance.status}}</td>
+        <td><a [href]="'http://' + instance.url">Wordpress</a> </td>
         <td>
-          <button type="button" class="btn btn-default">
+          <button type="button" class="btn btn-default" (click)="startInstance()" [ngClass]="{disabled: !startButtonEnabled}">
             <span class="glyphicon glyphicon-play"></span>
           </button>
-          <button type="button" class="btn btn-default">
+          <button type="button" class="btn btn-default" (click)="stopInstance()" [ngClass]="{disabled: !stopButtonEnabled}">
             <span class="glyphicon glyphicon-stop"></span>
           </button>
-          <button type="button" class="btn btn-default">
+          <button type="button" class="btn btn-default" (click)="restartInstance()" [ngClass]="{disabled: !resetButtonEnabled}">
             <span class="glyphicon glyphicon-repeat"></span>
+          </button>
+
+          <button type="button" class="btn btn-default" (click)="terminateInstance()" [ngClass]="{disabled: !terminateButtonEnabled}">
+            <span class="glyphicon glyphicon-remove"></span>
           </button>
         </td>
       </tr>
       </tbody>
-      <ng-template #noInstance>
-        <h1 style="color:red">No instance available</h1>
-      </ng-template>
     </table>
+    <h1 style="color:red" *ngIf="!instance">No instance available</h1>
   </div>
 </div>

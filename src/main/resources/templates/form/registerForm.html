@@ -33,8 +33,6 @@
                     <label class="sr-only" for="AWSSecretKey">AWSSecretKey</label>
                     <input type="text" name="AWSSecretKey" th:field="*{AWSSecretKey}" placeholder="AWSSecretKey..." class="form-username form-control" id="AWSSecretKey">
                 </div>
-
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <button type="submit" class="btn">Create account</button>
             </form>
         </div>

@@ -9,10 +9,14 @@ import com.bitnami.wordpress.model.entity.User;
 import com.bitnami.wordpress.provider.CustomCredentialProvider;
 import com.bitnami.wordpress.repository.InstanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.Basic;
 import javax.transaction.Transactional;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class AWSService {
@@ -25,6 +29,9 @@ public class AWSService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TaskExecutor executor;
 
     @Transactional
     public void launchImage(User user, String instanceName, long configurationId ){
@@ -54,7 +61,7 @@ public class AWSService {
         String instanceIdentifier = createdInstance.getInstanceId();
 
         Instance instance = new Instance(reservationId, instanceIdentifier, instanceName,
-                createdInstance.getState().getName(), createdInstance.getPublicDnsName(),configuration);
+                createdInstance.getState().getName(), createdInstance.getPublicDnsName(), configuration);
 
         instanceRepository.save(instance);
         user.setInstance(instance);
@@ -66,11 +73,15 @@ public class AWSService {
                 .withCredentials(new CustomCredentialProvider(user))
                 .withRegion(user.getInstance().getConfiguration().getRegion())
                 .build();
-
         StopInstancesRequest stopInstancesRequest = new StopInstancesRequest()
                 .withInstanceIds(user.getInstance().getInstanceIdentifier());
 
-        ec2.stopInstances(stopInstancesRequest);
+
+        executor.execute(() ->
+                {
+                    ec2.stopInstances(stopInstancesRequest);
+                });
+
     }
 
     public void startInstance(User user){
@@ -82,7 +93,10 @@ public class AWSService {
         StartInstancesRequest startInstancesRequest = new StartInstancesRequest()
                 .withInstanceIds(user.getInstance().getInstanceIdentifier());
 
-        ec2.startInstances(startInstancesRequest);
+        executor.execute(() ->
+        {
+            ec2.startInstances(startInstancesRequest);
+        });
     }
 
     @Transactional
@@ -95,7 +109,10 @@ public class AWSService {
         TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest()
                 .withInstanceIds(user.getInstance().getInstanceIdentifier());
 
-        ec2.terminateInstances(terminateInstancesRequest);
+        executor.execute(() ->
+        {
+            ec2.terminateInstances(terminateInstancesRequest);
+        });
 
         Instance instance = user.getInstance();
         user.setInstance(null);
@@ -113,12 +130,15 @@ public class AWSService {
         RebootInstancesRequest  rebootInstancesRequest = new RebootInstancesRequest ()
                 .withInstanceIds(user.getInstance().getInstanceIdentifier());
 
-        ec2.rebootInstances(rebootInstancesRequest);
+        //@TODO Remove executor
+        executor.execute(() ->
+        {
+            ec2.rebootInstances(rebootInstancesRequest);
+        });
     }
 
     @Transactional
-    public InstanceState getInstanceStatus(User user){
-        AmazonEC2 ec2 = AmazonEC2ClientBuilder.standard()
+    public com.amazonaws.services.ec2.model.Instance getAWSInstance(User user){AmazonEC2 ec2 = AmazonEC2ClientBuilder.standard()
                 .withCredentials(new CustomCredentialProvider(user))
                 .withRegion(user.getInstance().getConfiguration().getRegion())
                 .build();
@@ -133,12 +153,10 @@ public class AWSService {
                 .filter((reservation -> reservation.getReservationId().equals(user.getInstance().getReservationId())))
                 .findFirst().orElse(null);
 
-        com.amazonaws.services.ec2.model.Instance currentInstance = currentReservation.getInstances()
+        return currentReservation.getInstances()
                 .stream()
-                .filter( (instance) -> instance.getImageId().equals(user.getInstance().getInstanceIdentifier()) )
+                .filter( (instance) -> instance.getInstanceId().equals(user.getInstance().getInstanceIdentifier()) )
                 .findFirst()
                 .orElse(null);
-
-        return currentInstance.getState();
     }
 }

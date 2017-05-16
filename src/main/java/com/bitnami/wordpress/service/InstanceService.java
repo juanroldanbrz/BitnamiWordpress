@@ -1,5 +1,6 @@
 package com.bitnami.wordpress.service;
 
+import com.bitnami.wordpress.exception.NoInstanceException;
 import com.bitnami.wordpress.model.entity.Instance;
 import com.bitnami.wordpress.model.entity.User;
 import com.bitnami.wordpress.repository.InstanceRepository;
@@ -24,6 +25,10 @@ public class InstanceService {
     }
 
     public Instance getInstance(User user){
+        if(user.getInstance() == null){
+            throw new NoInstanceException();
+        }
+
         return updateInstanceStatus(user);
     }
 
@@ -32,8 +37,14 @@ public class InstanceService {
     }
 
     private Instance updateInstanceStatus(User user){
+        com.amazonaws.services.ec2.model.Instance awsInstance = awsService.getAWSInstance(user);
         Instance instance = user.getInstance();
-        instance.setStatus(awsService.getInstanceStatus(user).getName());
+        instance.setStatus(awsInstance.getState().getName());
+
+        if(instance.getUrl().isEmpty()){
+            instance.setUrl(awsInstance.getPublicDnsName());
+        }
+
         instanceRepository.save(instance);
         return instance;
     }

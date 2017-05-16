@@ -16,7 +16,7 @@ public class Instance {
     private String status;
     private String url;
 
-    @ManyToOne(cascade=CascadeType.ALL)
+    @ManyToOne(cascade=CascadeType.ALL, fetch = FetchType.EAGER)
     private Configuration configuration;
 
     public Instance(){}

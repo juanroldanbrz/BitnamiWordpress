@@ -36,32 +36,42 @@ public class InstanceApiController {
     }
 
     @RequestMapping(value = "/start", method = RequestMethod.POST)
-    public void startAmi(Principal principal){
+    public DefaultResponse startAmi(Principal principal){
         User user = userService.find(principal.getName());
         awsService.startInstance(user);
+        return new DefaultResponse("OK");
     }
 
     @RequestMapping(value = "/stop", method = RequestMethod.POST)
-    public void stopAmi(Principal principal){
+    public DefaultResponse stopAmi(Principal principal){
         User user = userService.find(principal.getName());
         awsService.stopInstance(user);
+        return new DefaultResponse("OK");
     }
 
     @RequestMapping(value = "/restart", method = RequestMethod.POST)
-    public void restartAmi(Principal principal){
+    public DefaultResponse restartAmi(Principal principal){
         User user = userService.find(principal.getName());
         awsService.restartInstance(user);
+        return new DefaultResponse("OK");
     }
 
     @RequestMapping(value = "/terminate", method = RequestMethod.POST)
-    public void terminateAmi(Principal principal){
+    public DefaultResponse terminateAmi(Principal principal){
         User user = userService.find(principal.getName());
         awsService.terminateInstance(user);
+        return new DefaultResponse("OK");
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     public Instance ami(Principal principal){
         User user = userService.find(principal.getName());
         return instanceService.getInstance(user);
+    }
+
+    @RequestMapping(value = "/status", method = RequestMethod.GET)
+    public String status(Principal principal){
+        User user = userService.find(principal.getName());
+        return instanceService.getInstanceStatus(user);
     }
 }

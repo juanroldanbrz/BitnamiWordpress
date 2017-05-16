@@ -17,7 +17,7 @@ public class LoginController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping("/login")
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String loginView(HttpServletRequest request, Model model){
         if(request.getParameterMap().containsKey("error")){
             model.addAttribute("hasError", true);
