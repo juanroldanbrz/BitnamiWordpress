@@ -4,6 +4,7 @@ export class Instance {
     public instance_identifier: number,
     public name: string,
     public state: string,
+    public status: string,
     public url: string,
     public configuration: Configuration
   ) {}

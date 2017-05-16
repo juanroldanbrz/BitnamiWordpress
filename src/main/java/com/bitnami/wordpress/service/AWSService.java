@@ -1,26 +1,23 @@
 package com.bitnami.wordpress.service;
 
 import com.amazonaws.services.ec2.AmazonEC2;
-import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import com.amazonaws.services.ec2.model.*;
+import com.amazonaws.services.ec2.model.InstanceStatus;
+import com.bitnami.wordpress.model.*;
 import com.bitnami.wordpress.model.entity.Configuration;
 import com.bitnami.wordpress.model.entity.Instance;
 import com.bitnami.wordpress.model.entity.User;
 import com.bitnami.wordpress.provider.AWSClientProvider;
-import com.bitnami.wordpress.provider.CustomCredentialProvider;
-import com.bitnami.wordpress.repository.InstanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.Basic;
 import javax.transaction.Transactional;
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Service
 public class AWSService {
+
+    private static final String INITIAL_STATUS = "Initializing";
 
     @Autowired
     private IConfigurationService configurationService;
@@ -61,7 +58,8 @@ public class AWSService {
         String instanceIdentifier = createdInstance.getInstanceId();
 
         Instance instance = new Instance(reservationId, instanceIdentifier, instanceName,
-                createdInstance.getState().getName(), createdInstance.getPublicDnsName(), configuration);
+                createdInstance.getState().getName(), INITIAL_STATUS,
+                createdInstance.getPublicDnsName(), configuration);
 
         User user = userService.getLoggedUser();
         instanceRepository.save(instance);
@@ -74,7 +72,6 @@ public class AWSService {
 
         StopInstancesRequest stopInstancesRequest = new StopInstancesRequest()
                 .withInstanceIds(instance.getInstanceIdentifier());
-
 
         executor.execute(() ->
                 {
@@ -127,24 +124,27 @@ public class AWSService {
         });
     }
 
-    @Transactional
-    public com.amazonaws.services.ec2.model.Instance getAWSInstance(User user){
+    public AMIInstanceStatus getAWSInstanceStatus(Instance instance){
         AmazonEC2 ec2 = awsClientProvider.createEC2Client();
+        DescribeInstanceStatusRequest statusRequest =
+                new DescribeInstanceStatusRequest()
+                        .withInstanceIds(instance.getInstanceIdentifier());
 
-        DescribeInstancesRequest request = new DescribeInstancesRequest()
-                .withInstanceIds(user.getInstance().getInstanceIdentifier());
+        DescribeInstanceStatusResult response =
+                ec2.describeInstanceStatus(statusRequest);
 
-        DescribeInstancesResult response = ec2.describeInstances(request);
+        AMIInstanceStatus amiInstanceStatus = new AMIInstanceStatus();
 
-        Reservation currentReservation = response.getReservations()
-                .stream()
-                .filter((reservation -> reservation.getReservationId().equals(user.getInstance().getReservationId())))
-                .findFirst().orElse(null);
-
-        return currentReservation.getInstances()
-                .stream()
-                .filter( (instance) -> instance.getInstanceId().equals(user.getInstance().getInstanceIdentifier()) )
+        InstanceStatus status = response.getInstanceStatuses().stream()
+                .filter( (currentInstance) -> currentInstance.getInstanceId().equals(instance.getInstanceIdentifier()) )
                 .findFirst()
                 .orElse(null);
+
+        if(status != null){
+            return new AMIInstanceStatus(status.getInstanceState().getName(),
+                    status.getInstanceStatus().getStatus());
+        }
+
+        return amiInstanceStatus;
     }
 }

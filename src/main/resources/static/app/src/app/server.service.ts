@@ -73,7 +73,7 @@ export class ServerService {
   getInstanceStatus(){
     return this.http.get('/api/instance/status').map(
       (response: Response) => {
-        return response.text();
+        return response.json();
       }
     );
   }

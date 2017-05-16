@@ -24,6 +24,7 @@
         <th>Instance name</th>
         <th>Wordpress Version</th>
         <th>OS Version</th>
+        <th>State</th>
         <th>Status</th>
         <th>URL</th>
         <th>Actions</th>
@@ -36,6 +37,7 @@
         <td>{{instance.configuration.wordpressVersion}}</td>
         <td>{{instance.configuration.osVersion}}</td>
         <td>{{instance.state}}</td>
+        <td>{{instance.status}}</td>
         <td><a [href]="'http://' + instance.url" target="_blank">Wordpress</a> </td>
         <td>
           <button type="button" class="btn btn-default" (click)="startInstance()" [ngClass]="{disabled: !startButtonEnabled}">

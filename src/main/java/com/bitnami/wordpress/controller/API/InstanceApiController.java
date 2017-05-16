@@ -1,5 +1,6 @@
 package com.bitnami.wordpress.controller.API;
 
+import com.bitnami.wordpress.model.AMIInstanceStatus;
 import com.bitnami.wordpress.model.entity.Instance;
 import com.bitnami.wordpress.model.entity.User;
 import com.bitnami.wordpress.service.AWSService;
@@ -70,7 +71,7 @@ public class InstanceApiController {
     }
 
     @RequestMapping(value = "/status", method = RequestMethod.GET)
-    public String status(Principal principal){
+    public AMIInstanceStatus status(Principal principal){
         User user = userService.find(principal.getName());
         return instanceService.getInstanceStatus(user);
     }
