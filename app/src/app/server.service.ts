@@ -2,6 +2,7 @@ import {Injectable} from "@angular/core";
 import {Headers, Http, Response} from "@angular/http";
 import "rxjs/Rx"
 
+//@TODO Refactor all this gets
 @Injectable()
 export class ServerService {
   constructor(private  http: Http) {}
@@ -13,6 +14,7 @@ export class ServerService {
       }
     );
   }
+
 
   getKeys(){
     return this.http.get('/api/keys').map(
@@ -31,7 +33,9 @@ export class ServerService {
   }
 
   launchInstance(instanceName: string, configurationId: number){
-    return this.http.get('/api/instance/new?instanceName='+instanceName+"&configurationId="+configurationId, "");
+    const headers = new Headers({'Content-Type': 'application/json'});
+    return this.http.post('/api/instance/new?instanceName='+instanceName+"&configurationId="+configurationId, "",
+      {headers: headers});
   }
 
   stopInstance(){

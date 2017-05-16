@@ -27,8 +27,7 @@ public class InstanceApiController {
     @Autowired
     private AWSService awsService;
 
-    //@TODO Change to POST
-    @RequestMapping(value = "/new", method = RequestMethod.GET)
+    @RequestMapping(value = "/new", method = RequestMethod.POST)
     public void launchAmi(Principal principal,
                     @RequestParam(value = "instanceName", required = false) String instanceName,
                     @RequestParam(value = "configurationId", required = false) String configurationId){
