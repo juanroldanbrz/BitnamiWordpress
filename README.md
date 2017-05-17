@@ -39,6 +39,16 @@ $ mvn spring-boot:run
 ```
 7. Go to localhost:8080/login
 
+## DEBUG
+
+1. Enable debug:
+
+    Add entry ``debug=true`` in application.properties
+
+2. Modify default running port:
+    
+    Add entry ``server.port=xxxx`` in application.properties
+
 ## HOW TO USE
 
 1. Register a new user with your AWSClientId and SecretID.
@@ -47,7 +57,7 @@ $ mvn spring-boot:run
 
 ## KNOWN BUGS
     
-1. Inconsistent data between the "intance" in the db and the real aws instance.
+1. Inconsistency of data between the "intance" in the db and the real aws instance is possible.
 This can be a problem for example if we terminate the bitnami AMI outside the application.
 Anyway, I have tried to reduce the scope of this issue as much as possible.
 
