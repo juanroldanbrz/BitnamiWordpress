@@ -10,6 +10,8 @@ $ npm install -g bower
 
 4. MySQL
 
+5. Maven
+
 ## HOW TO RUN
 
 1. Install MySQL
@@ -35,6 +37,7 @@ $ ng build
 ```
 $ mvn spring-boot:run
 ```
+7. Go to localhost:8080/login
 
 ## HOW TO USE
 
