@@ -48,7 +48,7 @@ public class LoginController {
             return "auth";
         }
 
-        userService.save(user);
+        userService.saveNewUser(user);
         return "redirect:/";
     }
 }
