@@ -20,12 +20,15 @@ public class BitnamiUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findOneByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException(username);
+        }
         return createUserDetailsFromUser(user);
     }
 
     private org.springframework.security.core.userdetails.User createUserDetailsFromUser(User user) {
         return new org.springframework.security.core.userdetails.User
                 (user.getUsername(), user.getPassword(),
-                        Collections.singletonList(new SimpleGrantedAuthority("USER")));
+                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
     }
 }
