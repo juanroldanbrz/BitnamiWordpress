@@ -21,6 +21,7 @@ import javax.transaction.Transactional;
 public class AWSService {
 
     private static final String INITIAL_STATUS = "Initializing";
+    private static final String NO_STATUS_AVAILABLE = "";
 
     @Autowired
     private IConfigurationService configurationService;
@@ -92,15 +93,11 @@ public class AWSService {
         StopInstancesRequest stopInstancesRequest = new StopInstancesRequest()
                 .withInstanceIds(instance.getInstanceIdentifier());
 
-        executor.execute(() ->
-                {
-                    ec2.stopInstances(stopInstancesRequest);
+        ec2.stopInstances(stopInstancesRequest);
 
-                    String toLog = String.format("stopInstance: Instance <%d>, AWSInstance <%s>", instance.getId(),
-                            instance.getInstanceIdentifier());
-
-                    logger.debug(toLog);
-                });
+        String toLog = String.format("stopInstance: Instance <%d>, AWSInstance <%s>", instance.getId(),
+                instance.getInstanceIdentifier());
+        logger.debug(toLog);
     }
 
     public void startInstance(Instance instance){
@@ -109,15 +106,12 @@ public class AWSService {
         StartInstancesRequest startInstancesRequest = new StartInstancesRequest()
                 .withInstanceIds(instance.getInstanceIdentifier());
 
-        executor.execute(() ->
-        {
-            ec2.startInstances(startInstancesRequest);
+        ec2.startInstances(startInstancesRequest);
 
-            String toLog = String.format("startInstance: Instance <%d>, AWSInstance <%s>", instance.getId(),
-                    instance.getInstanceIdentifier());
+        String toLog = String.format("startInstance: Instance <%d>, AWSInstance <%s>", instance.getId(),
+                instance.getInstanceIdentifier());
 
-            logger.debug(toLog);
-        });
+        logger.debug(toLog);
     }
 
     @Transactional
@@ -150,15 +144,12 @@ public class AWSService {
         RebootInstancesRequest  rebootInstancesRequest = new RebootInstancesRequest ()
                 .withInstanceIds(instance.getInstanceIdentifier());
 
-        executor.execute(() ->
-        {
-            ec2.rebootInstances(rebootInstancesRequest);
+        ec2.rebootInstances(rebootInstancesRequest);
 
-            String toLog = String.format("restartInstance: Instance <%d>, AWSInstance <%s>", instance.getId(),
-                    instance.getInstanceIdentifier());
+        String toLog = String.format("restartInstance: Instance <%d>, AWSInstance <%s>", instance.getId(),
+                instance.getInstanceIdentifier());
 
-            logger.debug(toLog);
-        });
+        logger.debug(toLog);
     }
 
     public String getAWSInstanceStatus(Instance instance){
@@ -185,7 +176,7 @@ public class AWSService {
 
         logger.debug(toLog);
 
-        return "";
+        return NO_STATUS_AVAILABLE;
     }
 
     @Transactional
